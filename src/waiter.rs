@@ -1,8 +1,9 @@
+use std::error::Error;
 use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
 pub trait Waiter {
-    fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, String>;
+    fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, Box<dyn Error>>;
     fn continue_waiting(&mut self) -> bool;
 
     fn run(&mut self)

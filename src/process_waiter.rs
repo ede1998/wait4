@@ -1,8 +1,9 @@
 use crate::waiter::*;
 use boolinator::Boolinator;
+use std::error::Error;
+use std::fmt;
 use std::thread::{self, JoinHandle};
 use sysinfo::{Pid, System, SystemExt};
-use std::fmt;
 
 pub struct ProcessWaiter {
     pid: Pid,
@@ -11,15 +12,15 @@ pub struct ProcessWaiter {
 }
 
 impl Waiter for ProcessWaiter {
-    fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, String> {
+    fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, Box<dyn Error>> {
         info!("Initializing ProcessWaiter for PID [{}]", argument);
         let pid = argument
             .parse::<i32>()
-            .map_err(|pid| format!("Pid [{}] is not a valid integer.", pid))?;
+            .map_err(|pid| Box::new(ProcessWaiterError::NotAValidInteger(argument.to_string())))?;
         let mut waiter = ProcessWaiter::new(pid, sleeper);
-        let result = waiter.continue_waiting();
-        error!("result for [{}] is [{}]", pid, result);
-        result.ok_or(format!("Process with Pid [{}] does not exist.", pid))?;
+        let result = waiter
+            .continue_waiting()
+            .ok_or(Box::new(ProcessWaiterError::NoProcessExists(pid)))?;
         info!("Starting thread for ProcessWaiter [{:?}].", waiter);
         Ok(thread::spawn(move || waiter.run()))
     }
@@ -54,8 +55,20 @@ impl fmt::Debug for ProcessWaiter {
     }
 }
 
-#[derive(Clone, Copy,Debug)]
+#[derive(Clone, Debug)]
 pub enum ProcessWaiterError {
-    NotAValidInteger(&str),
-    NoProcessExists(Pid),
+    NotAValidInteger(String),
+    NoProcessExists(i32),
 }
+
+impl fmt::Display for ProcessWaiterError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use ProcessWaiterError::*;
+        match self {
+            NotAValidInteger(value) => write!(f, "Pid [{}] is not a valid integer.", value),
+            NoProcessExists(pid) => write!(f, "Process with Pid [{}] does not exist.", pid),
+        }
+    }
+}
+
+impl Error for ProcessWaiterError {}
