@@ -67,11 +67,13 @@ impl<'s> WaiterCollection<'s> {
 
     pub fn wait_for_all(self) -> Result<(), Box<dyn Error>> {
         if self.errors.is_empty() {
+            info!("No error occurred during initialization. Starting wait now.");
             for waiter_handle in self.handles {
                 let _ = waiter_handle.join();
             }
             Ok(())
         } else {
+            error!("At least one error occurred. Not waiting.");
             Err(Box::new(AggregateError(self.errors)))
         }
     }

@@ -7,11 +7,13 @@ use clap::{App, Arg, ArgMatches};
 use std::error::Error;
 
 use crate::aggregator::WaiterCollection;
+use crate::file_waiter::FileWaiter;
 use crate::process_waiter::ProcessWaiter;
 use crate::sleeper::Sleeper;
 use crate::waiter::*;
 
 mod aggregator;
+mod file_waiter;
 mod process_waiter;
 mod sleeper;
 mod waiter;
@@ -33,6 +35,7 @@ fn run() -> Result<(), Box<dyn Error>> {
     let mut waiters = WaiterCollection::new(sleeper, &matches);
 
     waiters.add("pid", ProcessWaiter::start);
+    waiters.add("file", FileWaiter::start);
 
     waiters.wait_for_all()
 }
@@ -42,6 +45,14 @@ fn get_matches() -> ArgMatches<'static> {
         .version(crate_version!())
         .author(crate_authors!())
         .about("Wait for events before terminating the program.")
+        .arg(
+            Arg::with_name("file")
+                .long("file")
+                .short("f")
+                .help("Wait till the given file exists.")
+                .multiple(true)
+                .takes_value(true),
+        )
         .arg(
             Arg::with_name("pid")
                 .long("pid")

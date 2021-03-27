@@ -22,7 +22,7 @@ impl Waiter for ProcessWaiter {
         waiter
             .continue_waiting()
             .ok_or(Box::new(ProcessWaiterError::NoProcessExists(pid)))?;
-        info!("Starting thread for ProcessWaiter [{:?}].", waiter);
+        info!("Starting thread for [{:?}].", waiter);
         Ok(thread::spawn(move || waiter.run()))
     }
 
