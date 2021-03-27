@@ -1,6 +1,6 @@
+use crate::sleeper::Sleeper;
 use std::error::Error;
-use std::thread::{self, JoinHandle};
-use std::time::Duration;
+use std::thread::JoinHandle;
 
 pub trait Waiter {
     fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, Box<dyn Error>>;
@@ -17,21 +17,4 @@ pub trait Waiter {
     }
 
     fn get_sleeper(&self) -> &Sleeper;
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct Sleeper {
-    duration: Duration,
-}
-
-impl Sleeper {
-    pub fn new(ms: u64) -> Self {
-        Sleeper {
-            duration: Duration::from_millis(ms),
-        }
-    }
-
-    pub fn sleep(&self) {
-        thread::sleep(self.duration);
-    }
 }

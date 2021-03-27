@@ -1,3 +1,4 @@
+use crate::sleeper::Sleeper;
 use crate::waiter::*;
 use boolinator::Boolinator;
 use std::error::Error;
@@ -16,9 +17,9 @@ impl Waiter for ProcessWaiter {
         info!("Initializing ProcessWaiter for PID [{}]", argument);
         let pid = argument
             .parse::<i32>()
-            .map_err(|pid| Box::new(ProcessWaiterError::NotAValidInteger(argument.to_string())))?;
+            .map_err(|_| Box::new(ProcessWaiterError::NotAValidInteger(argument.to_string())))?;
         let mut waiter = ProcessWaiter::new(pid, sleeper);
-        let result = waiter
+        waiter
             .continue_waiting()
             .ok_or(Box::new(ProcessWaiterError::NoProcessExists(pid)))?;
         info!("Starting thread for ProcessWaiter [{:?}].", waiter);
