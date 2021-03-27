@@ -1,0 +1,5 @@
+#!/bin/bash
+
+wait4pid=`ps -e --format 'user:9,pid:9,stime,comm,cmd' | fzf | cut -c 9-19`
+
+wait4 -p "$wait4pid"
