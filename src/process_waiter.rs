@@ -3,7 +3,7 @@ use crate::waiter::*;
 use boolinator::Boolinator;
 use std::error::Error;
 use std::fmt;
-use std::thread::{self, JoinHandle};
+use std::thread;
 use sysinfo::{Pid, System, SystemExt};
 
 pub struct ProcessWaiter {
@@ -13,7 +13,7 @@ pub struct ProcessWaiter {
 }
 
 impl Waiter for ProcessWaiter {
-    fn start(argument: &str, sleeper: Sleeper) -> Result<JoinHandle<()>, Box<dyn Error>> {
+    fn start(argument: &str, sleeper: Sleeper) -> WaiterStartResult {
         info!("Initializing ProcessWaiter for PID [{}]", argument);
         let pid = argument
             .parse::<i32>()
