@@ -102,7 +102,11 @@ impl SteamWaiterError {
 
 impl fmt::Display for SteamWaiterError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Error reading file [{}].", self.file_path.display())
+        write!(
+            f,
+            "Error reading steam log file. Expected path [{}].",
+            self.file_path.display()
+        )
     }
 }
 
