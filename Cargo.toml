@@ -1,6 +1,6 @@
 [package]
 name = "wait4"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["ede1998 <online@erik-hennig.me>"]
 edition = "2018"
 
