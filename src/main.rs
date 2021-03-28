@@ -10,12 +10,14 @@ use crate::aggregator::WaiterCollection;
 use crate::file_waiter::FileWaiter;
 use crate::process_waiter::ProcessWaiter;
 use crate::sleeper::Sleeper;
+use crate::steam_waiter::SteamWaiter;
 use crate::waiter::*;
 
 mod aggregator;
 mod file_waiter;
 mod process_waiter;
 mod sleeper;
+mod steam_waiter;
 mod waiter;
 
 fn main() {
@@ -36,6 +38,7 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     waiters.add("pid", ProcessWaiter::start);
     waiters.add("file", FileWaiter::start);
+    waiters.add("app_id", SteamWaiter::start);
 
     waiters.wait_for_all()
 }
@@ -58,6 +61,18 @@ fn get_matches() -> ArgMatches<'static> {
                 .long("pid")
                 .short("p")
                 .help("Wait till process with the given pid terminates.")
+                .multiple(true)
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("app_id")
+                .long("steam")
+                .short("s")
+                .help("Wait until the steam download for the game with the given app id finishes.")
+                .long_help(&format!("Wait until the steam download for the game with the given app id finishes. \
+                                    The following tool helps with finding the right id: https://steamdb.info/apps/. \
+                                    This option monitors the steam log file. Its filepath is read from the environment \
+                                    variable {} (default {}).", SteamWaiter::env_var_log_file(), SteamWaiter::default_log_file_path()))
                 .multiple(true)
                 .takes_value(true),
         )
